@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{% block title %}Groundwater Quality Advisor{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous"
+    >
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --gw-primary: #0f766e;
+            --gw-primary-soft: #ccfbf1;
+            --gw-deep-blue: #0f172a;
+            --gw-surface: #f1f5f9;
+        }
+
+        * {
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top left, #e0f2fe 0, #f8fafc 40%, #f1f5f9 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar-gw {
+            background: linear-gradient(90deg, #0369a1, #0f766e);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.35);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+        }
+
+        .navbar-gw .nav-link {
+            font-weight: 500;
+            color: rgba(241, 245, 249, 0.82) !important;
+        }
+        .navbar-gw .nav-link.active,
+        .navbar-gw .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        .bg-surface {
+            background-color: var(--gw-surface);
+        }
+
+        .card-shadow {
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
+        }
+
+        .btn-primary {
+            --bs-btn-bg: var(--gw-primary);
+            --bs-btn-border-color: var(--gw-primary);
+            --bs-btn-hover-bg: #115e59;
+            --bs-btn-hover-border-color: #115e59;
+            --bs-btn-active-bg: #0f766e;
+            --bs-btn-active-border-color: #0f766e;
+        }
+
+        .btn-outline-secondary {
+            --bs-btn-color: #0f172a;
+            --bs-btn-border-color: #cbd5f5;
+            --bs-btn-hover-bg: #e5e7eb;
+            --bs-btn-hover-border-color: #94a3b8;
+        }
+
+        .page-header-bar {
+            background: linear-gradient(90deg, rgba(56,189,248,0.12), rgba(45,212,191,0.15));
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(148,163,184,0.4);
+        }
+
+        footer {
+            border-top: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(15, 23, 42, 0.96);
+            color: #e5e7eb;
+        }
+
+        footer a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #bfdbfe;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-gw">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                Groundwater Quality Advisor
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarGw" aria-controls="navbarGw"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarGw">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
+                           href="{{ url_for('index') }}">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ['predict', 'review_sample'] %}active{% endif %}"
+                           href="{{ url_for('predict') }}">
+                            Prediction
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-shrink-0 py-3">
+        <div class="container">
+
+            {# Flash messages #}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mt-2">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto py-3">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center small">
+            <span>© {{ 2025 }} Groundwater Quality Advisor</span>
+            <span>
+                Built with <span class="text-info">Flask</span> · Bootstrap · ML &amp; Gemini
+            </span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"
+    ></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

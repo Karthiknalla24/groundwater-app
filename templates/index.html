@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block title %}Project Info | Groundwater Quality Prediction{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Simple icon circle for Section 2 */
+    .feature-icon-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: rgba(37, 99, 235, 0.08);
+        color: #2563eb;
+    }
+
+    /* Flip cards (Section 4) */
+    .flip-card {
+        background: transparent;
+        perspective: 1000px;
+        height: 190px;
+    }
+    .flip-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+    }
+    .flip-card:hover .flip-inner {
+        transform: rotateY(180deg);
+    }
+    .flip-front,
+    .flip-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 0.75rem;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .flip-front {
+        background: #ffffff;
+    }
+    .flip-back {
+        background: #0f172a;
+        color: #e5e7eb;
+        transform: rotateY(180deg);
+    }
+    .flip-step-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eff6ff;
+        color: #2563eb;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<!-- ================= SECTION 1 : HERO (2 COLS) ================= -->
+<section class="py-4 bg-light-subtle">
+    <div class="container">
+        <div class="row align-items-center gy-4">
+            <!-- Left: Heading, text, buttons -->
+            <div class="col-lg-7">
+                <div class="page-header-bar mb-2 d-flex flex-wrap align-items-center gap-2">
+                    <span class="badge bg-primary-subtle text-primary">Groundwater AI</span>
+                    <span class="small text-muted">Drinking &amp; Irrigation Suitability</span>
+                </div>
+
+                <h1 class="fw-semibold mb-2">
+                    Groundwater Quality &amp; Usage Suitability Prediction
+                </h1>
+                <p class="text-muted mb-3">
+                    Quickly understand whether your groundwater sample is suitable for
+                    <strong>drinking</strong> or <strong>irrigation</strong> using a clean,
+                    dashboard-style interface powered by Machine Learning and Gemini.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg">
+                        Start Prediction
+                    </a>
+                    <a href="#how-it-works" class="btn btn-outline-secondary">
+                        How it works
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Image -->
+            <div class="col-lg-5">
+                <div class="card card-shadow border-0 overflow-hidden h-100">
+                    <div class="position-relative h-100">
+                        <img src="{{ url_for('static', filename='images/gw-hero.png') }}"
+                             class="img-fluid w-100 h-100 object-fit-cover"
+                             alt="Groundwater visualization (placeholder)">
+                        <div class="position-absolute top-0 start-0 w-100 h-100"
+                             style="background: linear-gradient(135deg, rgba(15,23,42,0.7), rgba(15,118,110,0.6));">
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 p-3 text-white">
+                            <div class="small text-uppercase mb-1" style="letter-spacing:0.08em;">
+                                Live Interpretation
+                            </div>
+                            <div class="fw-semibold">
+                                From complex lab values<br>to simple visual decisions.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= SECTION 2 : 3 FEATURE COLUMNS (ICONS) ================= -->
+<section class="py-4">
+    <div class="container">
+        <div class="row g-4 text-center text-md-start">
+            <!-- Col 1: Parameters info -->
+            <div class="col-md-4">
+                <div class="h-100 d-flex flex-column align-items-center align-items-md-start">
+                    <div class="feature-icon-circle mb-3">
+                        <span>📊</span>
+                    </div>
+                    <h4 class="h6 mb-1">Rich Input Parameters</h4>
+                    <p class="small text-muted mb-0">
+                        Capture key groundwater chemistry like pH, EC, TDS, hardness,
+                        carbonate/bicarbonate, major ions and salinity indicators.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Col 2: 2 Modes -->
+            <div class="col-md-4">
+                <div class="h-100 d-flex flex-column align-items-center align-items-md-start">
+                    <div class="feature-icon-circle mb-3" style="background:rgba(16,185,129,0.08);color:#059669;">
+                        <span>🔁</span>
+                    </div>
+                    <h4 class="h6 mb-1">2 Modes: Drinking &amp; Irrigation</h4>
+                    <p class="small text-muted mb-0">
+                        Switch between human health and crop/soil-focused analysis so that
+                        the same sample can be evaluated for multiple uses.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Col 3: Random Forest + Gemini -->
+            <div class="col-md-4">
+                <div class="h-100 d-flex flex-column align-items-center align-items-md-start">
+                    <div class="feature-icon-circle mb-3" style="background:rgba(129,140,248,0.1);color:#4f46e5;">
+                        <span>✨</span>
+                    </div>
+                    <h4 class="h6 mb-1">Random Forest + Gemini Insights</h4>
+                    <p class="small text-muted mb-0">
+                        Random Forest predicts the quality class while Gemini explains it in
+                        natural language with safe, practical recommendations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= SECTION 3 : 3 IMAGE CARDS ================= -->
+<section class="py-4">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-3 g-3">
+            <!-- Purpose -->
+            <div class="col">
+                <div class="card h-100 card-shadow border-0">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ url_for('static', filename='images/gw-purpose.png') }}"
+                             class="img-fluid"
+                             alt="Groundwater purpose illustration (placeholder)">
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-primary-subtle text-primary mb-2">Purpose</span>
+                        <h6 class="card-title mb-1">Turn lab reports into decisions</h6>
+                        <p class="small mb-0 text-muted">
+                            Classify groundwater samples and show clear suitability for drinking or
+                            irrigation with user-friendly explanations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Problem -->
+            <div class="col">
+                <div class="card h-100 card-shadow border-0">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ url_for('static', filename='images/gw-problem.png') }}"
+                             class="img-fluid"
+                             alt="Daily groundwater issues (placeholder)">
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-warning text-dark mb-2">Daily Problems</span>
+                        <h6 class="card-title mb-1">When numbers are confusing</h6>
+                        <p class="small mb-0 text-muted">
+                            People see values like pH, EC, TDS, fluoride or nitrate in reports but
+                            don’t know what is safe, marginal, or risky for health and crops.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outcome -->
+            <div class="col">
+                <div class="card h-100 card-shadow border-0">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ url_for('static', filename='images/gw-outcome.png') }}"
+                             class="img-fluid"
+                             alt="Outcome of water quality system (placeholder)">
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-success-subtle text-success mb-2">Outcome</span>
+                        <h6 class="card-title mb-1">Instant visual feedback</h6>
+                        <p class="small mb-0 text-muted">
+                            Get a quality class, parameter insights and Gemini tips to
+                            decide when to use, blend, treat or avoid that water source.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= SECTION 4 : FLIP CARDS (3 COLS) ================= -->
+<section class="py-4 bg-light-subtle">
+    <div class="container">
+        <h5 class="mb-3 text-center">Quick 3-Step Workflow</h5>
+        <div class="row g-3">
+            <!-- Step 1 -->
+            <div class="col-md-4">
+                <div class="flip-card">
+                    <div class="flip-inner">
+                        <div class="flip-front">
+                            <div class="flip-step-badge">1</div>
+                            <h6 class="mb-1">Collect values</h6>
+                            <p class="small text-muted mb-0">
+                                Hover to see details &raquo;
+                            </p>
+                        </div>
+                        <div class="flip-back">
+                            <h6 class="mb-2">Collect values</h6>
+                            <p class="small mb-0">
+                                Keep your groundwater lab report ready with all parameter values
+                                like pH, EC, TDS, hardness and major ions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="col-md-4">
+                <div class="flip-card">
+                    <div class="flip-inner">
+                        <div class="flip-front">
+                            <div class="flip-step-badge">2</div>
+                            <h6 class="mb-1">Enter &amp; submit</h6>
+                            <p class="small text-muted mb-0">
+                                Hover to see details &raquo;
+                            </p>
+                        </div>
+                        <div class="flip-back">
+                            <h6 class="mb-2">Enter &amp; submit</h6>
+                            <p class="small mb-0">
+                                Open the Prediction page, choose Drinking or Irrigation mode and
+                                fill all fields based on your test report.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="col-md-4">
+                <div class="flip-card">
+                    <div class="flip-inner">
+                        <div class="flip-front">
+                            <div class="flip-step-badge">3</div>
+                            <h6 class="mb-1">Read results</h6>
+                            <p class="small text-muted mb-0">
+                                Hover to see details &raquo;
+                            </p>
+                        </div>
+                        <div class="flip-back">
+                            <h6 class="mb-2">Read results</h6>
+                            <p class="small mb-0">
+                                View the predicted quality class, parameter insights
+                                (low/normal/high) and Gemini recommendations to guide action.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="small text-muted text-center mt-3 mb-0">
+            This simple flow makes the tool easy for both students and field users to operate.
+        </p>
+    </div>
+</section>
+
+<!-- ================= SECTION 5 : TABS + SLIDER (2 COLS) ================= -->
+<section class="py-4">
+    <div class="container">
+        <div class="row g-4 align-items-stretch">
+            <!-- Column 1: Tabs -->
+            <div class="col-lg-5">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Prediction Modes</h5>
+                    <span class="small text-muted">Two focused flows in the same app</span>
+                </div>
+
+                <ul class="nav nav-pills mb-3" id="modeTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="drink-tab" data-bs-toggle="pill"
+                                data-bs-target="#drink-pane" type="button" role="tab"
+                                aria-controls="drink-pane" aria-selected="true">
+                            Drinking Water
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="irr-tab" data-bs-toggle="pill"
+                                data-bs-target="#irr-pane" type="button" role="tab"
+                                aria-controls="irr-pane" aria-selected="false">
+                            Irrigation Water
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="modeTabContent">
+                    <div class="tab-pane fade show active" id="drink-pane" role="tabpanel"
+                         aria-labelledby="drink-tab">
+                        <div class="card card-shadow border-0">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-md-4">
+                                    <img src="{{ url_for('static', filename='images/gw-drink-thumb.png') }}"
+                                         class="img-fluid h-100 w-100 object-fit-cover"
+                                         alt="Drinking mode thumbnail (placeholder)">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body small">
+                                        <p class="mb-1">
+                                            Focused on human consumption: pH, TDS, hardness, fluoride, nitrate
+                                            and major ions are analyzed to estimate drinking suitability.
+                                        </p>
+                                        <p class="mb-0">
+                                            Gemini explains the result in simple terms and suggests safe practices.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="irr-pane" role="tabpanel" aria-labelledby="irr-tab">
+                        <div class="card card-shadow border-0">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-md-4">
+                                    <img src="{{ url_for('static', filename='images/gw-irr-thumb.png') }}"
+                                         class="img-fluid h-100 w-100 object-fit-cover"
+                                         alt="Irrigation mode thumbnail (placeholder)">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body small">
+                                        <p class="mb-1">
+                                            Focused on soil and crop impact: EC, TDS, Sodium, SAR and RSC help
+                                            understand salinity and sodicity risk over time.
+                                        </p>
+                                        <p class="mb-0">
+                                            Get suggestions like choosing salt-tolerant crops, blending sources
+                                            or improving drainage.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Slider -->
+            <div class="col-lg-7">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Visual Overview</h5>
+                    <span class="small text-muted">Replace these placeholders with your own images</span>
+                </div>
+
+                <div id="gwCarousel" class="carousel slide card-shadow overflow-hidden"
+                     data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#gwCarousel" data-bs-slide-to="0" class="active"
+                                aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#gwCarousel" data-bs-slide-to="1"
+                                aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#gwCarousel" data-bs-slide-to="2"
+                                aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="{{ url_for('static', filename='images/gw-drinking.png') }}"
+                                 class="d-block w-100"
+                                 alt="Drinking water quality visualization (placeholder)">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h6>Drinking Water Suitability</h6>
+                                <p class="small">Check safety based on pH, TDS, hardness, fluoride, nitrate and more.</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{{ url_for('static', filename='images/gw-irrigation.png') }}"
+                                 class="d-block w-100"
+                                 alt="Irrigation water quality visualization (placeholder)">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h6>Irrigation &amp; Soil Health</h6>
+                                <p class="small">Understand salinity and sodicity impacts on long-term soil quality.</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{{ url_for('static', filename='images/gw-lab.png') }}"
+                                 class="d-block w-100"
+                                 alt="Groundwater test lab illustration (placeholder)">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h6>From Lab to Dashboard</h6>
+                                <p class="small">Convert raw lab values into simple visuals and AI explanations.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button"
+                            data-bs-target="#gwCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button"
+                            data-bs-target="#gwCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= SECTION 6 : ACCORDION + IMAGE (2 COLS) ================= -->
+<section id="how-it-works" class="pb-4">
+    <div class="container">
+        <div class="row g-4 align-items-stretch">
+            <!-- Col 1: Accordion -->
+            <div class="col-lg-7">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Under the Hood</h5>
+                    <span class="small text-muted">Useful for documentation &amp; viva</span>
+                </div>
+
+                <div class="accordion" id="projectAccordion">
+                    <!-- Flow -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFlow">
+                            <button class="accordion-button" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#collapseFlow"
+                                    aria-expanded="true" aria-controls="collapseFlow">
+                                Step-by-step Implementation Flow
+                            </button>
+                        </h2>
+                        <div id="collapseFlow" class="accordion-collapse collapse show"
+                             aria-labelledby="headingFlow" data-bs-parent="#projectAccordion">
+                            <div class="accordion-body small">
+                                <ol class="mb-0">
+                                    <li>Collect groundwater data and lab-measured parameters.</li>
+                                    <li>Clean, preprocess and apply Box-Cox / Yeo-Johnson transforms.</li>
+                                    <li>Train Random Forest models for drinking &amp; irrigation classes.</li>
+                                    <li>Save models, transformers and label encoders as pickle files.</li>
+                                    <li>Flask app reads new inputs, repeats the same transforms.</li>
+                                    <li>Predicted class + parameter insights are passed to Gemini.</li>
+                                    <li>Gemini returns structured, human-readable recommendations.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingModel">
+                            <button class="accordion-button collapsed" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#collapseModel"
+                                    aria-expanded="false" aria-controls="collapseModel">
+                                Model &amp; Input Feature Set
+                            </button>
+                        </h2>
+                        <div id="collapseModel" class="accordion-collapse collapse"
+                             aria-labelledby="headingModel" data-bs-parent="#projectAccordion">
+                            <div class="accordion-body small">
+                                <p class="mb-1">
+                                    Backend model: <strong>Random Forest classifier</strong> trained on:
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="mb-1">
+                                            <li>pH, EC, TDS</li>
+                                            <li>Carbonate, Bicarbonate</li>
+                                            <li>Chloride, Sulfate</li>
+                                            <li>Fluoride, Nitrate</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="mb-1">
+                                            <li>Sodium, Calcium, Magnesium</li>
+                                            <li>Total Hardness</li>
+                                            <li>Sodium Adsorption Ratio (SAR)</li>
+                                            <li>Residual Sodium Carbonate (RSC)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <p class="mb-0">
+                                    Targets are label-encoded quality classes (e.g. Suitable, Marginal, Unsuitable)
+                                    that are decoded back into readable text on the result page.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3 small mb-0" role="alert">
+                    <strong>Disclaimer:</strong> This web app is for educational and decision-support
+                    purposes only. Final water quality judgement should be based on certified laboratory
+                    analysis.
+                </div>
+            </div>
+
+            <!-- Col 2: Image -->
+            <div class="col-lg-5">
+                <div class="card card-shadow border-0 h-100 overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/gw-lab.png') }}"
+                         class="img-fluid h-100 w-100 object-fit-cover"
+                         alt="Technical groundwater lab / system illustration (placeholder)">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Result | Groundwater Quality{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .param-card {
+        border-radius: 0.75rem;
+        padding: 0.75rem 0.9rem;
+        background: #ffffff;
+        box-shadow: 0 8px 18px rgba(15,23,42,0.06);
+        transition: transform 0.12s ease, box-shadow 0.12s ease,
+                    border-color 0.12s ease, background-color 0.12s ease;
+        cursor: pointer;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+    }   
+    .param-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(15,23,42,0.10);
+        border-color: rgba(37, 99, 235, 0.55);
+    }
+    .param-card.selected {
+        background: #e0f2fe;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+    }
+    .param-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.15rem;
+    }
+    .param-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .param-chip {
+        font-size: 0.7rem;
+        padding: 0.1rem 0.4rem;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    /* Gauge cards (insights) */
+    .gauge-card {
+        border-radius: 0.75rem;
+        background: #ffffff;
+        box-shadow: 0 8px 18px rgba(15,23,42,0.05);
+        padding: 0.75rem 0.9rem 1rem;
+        height: 100%;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        cursor: pointer;
+    }
+    .gauge-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(15,23,42,0.12);
+    }
+    .gauge-title {
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .gauge-subtext {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="py-4">
+    <div class="container">
+
+        {# domain ranges for tooltips #}
+        {% set param_ranges = {
+            "pH": "Normal range: 6.5 – 8.5",
+            "Electrical_Conductivity": "Normal: 250 – 750 µS/cm",
+            "Total_Dissolved_Solids": "Normal: 300 – 900 mg/L",
+            "Carbonate": "Normal: 0 – 30 mg/L",
+            "Bicarbonate": "Normal: 50 – 200 mg/L",
+            "Chloride": "Normal: 0 – 250 mg/L",
+            "Fluoride": "Normal: 0 – 1.0 mg/L",
+            "Nitrate": "Normal: 0 – 45 mg/L",
+            "Sulfate": "Normal: 0 – 200 mg/L",
+            "Sodium": "Normal: 0 – 60 mg/L",
+            "Calcium": "Normal: 0 – 75 mg/L",
+            "Magnesium": "Normal: 0 – 50 mg/L",
+            "Total_Hardness": "Normal: 0 – 300 mg/L (as CaCO₃)",
+            "Sodium_Adsorption_Ratio": "Normal: 0 – 10 (good irrigation water)",
+            "Residual_Sodium_Carbonate": "Normal: 0 – 2.5 meq/L"
+        } %}
+
+        <div class="row align-items-center mb-3 gy-2">
+            <div class="col-md-8">
+                <h2 class="h4 mb-1">Prediction Result</h2>
+                <p class="small text-muted mb-0">
+                    Below is the model output based on your entered groundwater parameters.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                {% if mode == "drinking" %}
+                    <span class="badge bg-primary-subtle text-primary">
+                        Mode: Drinking Water
+                    </span>
+                {% else %}
+                    <span class="badge bg-success-subtle text-success">
+                        Mode: Irrigation Water
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- ================= LEFT : PARAMETERS AS CARDS ================= -->
+            <div class="col-lg-6">
+                <div class="card card-shadow border-0 mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h5 class="card-title mb-0">Input Parameters</h5>
+                                <p class="small text-muted mb-0">
+                                    Click a card to highlight a parameter. Hover to see quick hints.
+                                </p>
+                            </div>
+                            <span class="badge bg-light text-muted">
+                                {{ input_data|length }} parameters
+                            </span>
+                        </div>
+
+                        <div class="row g-2 g-md-3 mt-2">
+                            {% for key, value in input_data.items() %}
+                            <div class="col-6 col-md-4">
+                                <div class="param-card"
+                                     data-param="{{ key }}"
+                                     data-bs-toggle="tooltip"
+                                     data-bs-placement="top"
+                                     title="Parameter: {{ key.replace('_', ' ') }}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="param-label">
+                                            {{ key.replace("_", " ") }}
+                                        </span>
+                                        <span class="param-chip">
+                                            {{ loop.index }}
+                                        </span>
+                                    </div>
+                                    <div class="param-value">
+                                        {{ "%.3f"|format(value) }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <p class="small text-muted mt-3 mb-0">
+                            These values come directly from your form inputs and are transformed
+                            internally (Box-Cox / Yeo-Johnson) before being passed to the model.
+                            You can use this grid to quickly review or compare different runs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= RIGHT : PREDICTION & RECOMMENDATIONS ================= -->
+            <div class="col-lg-6">
+                <!-- Predicted class -->
+                <div class="card card-shadow border-0 mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Predicted Quality Class</h5>
+
+                        <div class="d-flex align-items-center mb-2">
+                            {% set label = predicted_class|lower %}
+                            {% if "excellent" in label or "good" in label or "suitable" in label %}
+                                <span class="badge bg-success fs-6">
+                                    {{ predicted_class }}
+                                </span>
+                            {% elif "permissible" in label or "moderate" in label or "marginal" in label %}
+                                <span class="badge bg-danger fs-6">
+                                    {{ predicted_class }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark fs-6">
+                                    {{ predicted_class }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <p class="small text-muted mb-0">
+                            The predicted class summarizes the water quality based on your input
+                            parameters and the trained Random Forest model.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Recommendations (Gemini-powered) -->
+                <div class="card card-shadow border-0 mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Recommendations</h5>
+                        {% if recommendations %}
+                            <p class="small mb-0" style="white-space: pre-line;">
+                                {{ recommendations }}
+                            </p>
+                        {% else %}
+                            <p class="small mb-0 text-muted">
+                                No additional recommendations were generated. In practice, this
+                                section is powered by an AI assistant (Gemini) to give detailed
+                                guidance based on your values and predicted class.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Note + actions -->
+                <div class="alert alert-info small" role="alert">
+                    <strong>Note:</strong> This result is an approximation based on the model and
+                    should be used as a guide. Always confirm critical decisions with certified
+                    laboratory tests and local experts.
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                        New Prediction
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+
+            <!-- ================= FULL-WIDTH PARAMETER INSIGHTS BELOW ================= -->
+            <div class="col-12 mt-4">
+                <div class="card card-shadow border-0 mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">Parameter Insights</h5>
+                        <p class="small text-muted mb-3">
+                            Visual summary of each parameter compared with typical groundwater quality ranges.
+                            Hover a card to see the recommended normal range.
+                        </p>
+
+                        <div class="row g-3">
+                            {% for key, detail in insights.items() %}
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="gauge-card text-center"
+                                     data-bs-toggle="tooltip"
+                                     data-bs-placement="top"
+                                     title="{{ param_ranges.get(key, 'Refer to groundwater guidelines for this parameter.') }}">
+                                    <!-- Circular progress gauge -->
+                                    <div class="position-relative d-inline-block mb-2" style="width:90px; height:90px;">
+                                        <svg width="90" height="90">
+                                            <!-- Background circle -->
+                                            <circle cx="45" cy="45" r="35"
+                                                    stroke="#e5e7eb"
+                                                    stroke-width="9"
+                                                    fill="none" />
+                                            <!-- Foreground progress circle -->
+                                            <circle cx="45" cy="45" r="35"
+                                                    stroke="{% if detail.color == 'success' %}#22c55e{% elif detail.color == 'warning' %}#f59e0b{% else %}#ef4444{% endif %}"
+                                                    stroke-width="9"
+                                                    fill="none"
+                                                    stroke-dasharray="220"
+                                                    stroke-dashoffset="{{ 220 - (220 * detail.percent / 100) }}"
+                                                    stroke-linecap="round"
+                                                    transform="rotate(-90 45 45)"/>
+                                        </svg>
+                                        <div class="position-absolute top-50 start-50 translate-middle fw-bold small">
+                                            {{ detail.percent }}%
+                                        </div>
+                                    </div>
+
+                                    <!-- Title -->
+                                    <div class="gauge-title mb-1">
+                                        {{ key.replace("_", " ") }}
+                                    </div>
+
+                                    <!-- Status badge with simple icon -->
+                                    {% if detail.status == "Normal" %}
+                                        <span class="badge bg-success">
+                                            ✓ Normal
+                                        </span>
+                                    {% elif detail.status == "Low" %}
+                                        <span class="badge bg-warning text-dark">
+                                            ⚠ Low
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            ✕ High
+                                        </span>
+                                    {% endif %}
+
+                                    <!-- Short description -->
+                                    <p class="gauge-subtext mt-2 mb-0">
+                                        {{ key.replace("_", " ") }} is
+                                        {{ detail.status|lower }} relative to the recommended range.
+                                    </p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>  {# end row #}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Enable Bootstrap tooltips for parameter cards and gauge cards
+    const tooltipTriggerList = [].slice.call(
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Click-to-highlight behaviour for parameter cards
+    document.querySelectorAll('.param-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            card.classList.toggle('selected');
+        });
+    });
+</script>
+{% endblock %}
